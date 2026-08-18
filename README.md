@@ -13,6 +13,12 @@ service and area pages. Each post then links back to one of those real pages,
 and the post content is written around that page's topic. No sitemap, no
 posts: the URLs and what to post come straight from the client's own site.
 
+## Tested and working
+
+- **Content API:** DeepSeek and ChatGPT (OpenAI) both tested for post and image-prompt generation
+- **Image API:** Gemini and FAL tested for image generation
+- **Pipeline:** tested end to end (sitemap fetch, post generation, CSV output, SSH upload)
+
 ## Requirements
 
 - **HighLevel CRM** - the finished CSV is designed to be imported into a
