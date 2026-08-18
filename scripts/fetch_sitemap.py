@@ -24,6 +24,9 @@ SKIP_PATTERNS = [
     r"/cart", r"/checkout", r"/wishlist", r"/my-account", r"/dashboard",
     r"/search", r"/404", r"/error", r"/under-construction", r"/coming-soon",
     r"/blog/?$", r"/news/?$", r"/press", r"/media-kit",
+    # Blog POSTS are intentionally kept: individual blog posts (e.g. /blog/title)
+    # are valid content and link-back targets. Only the blog index (/blog/?$)
+    # and pagination (/blog/page) are dropped.
 ]
 
 

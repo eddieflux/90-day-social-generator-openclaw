@@ -13,8 +13,10 @@ HighLevel Social Planner import format.
 
 The client's **sitemap** is the source of truth. The pipeline fetches
 `<domain>/sitemap.xml`, filters out junk pages (about, sitemap, terms,
-privacy, contact, faq, login, cart, blog index, etc.), and keeps only the
-service and area pages. Each post then links back to one of those real pages,
+privacy, contact, faq, login, cart, blog index, etc.), and keeps the
+service, area, and blog post pages. Individual blog posts are included as
+valid link-back targets and post topics, only the blog index and pagination
+pages are dropped. Each post then links back to one of those real pages,
 and the post content is written around that page's topic. No sitemap, no
 posts: the URLs and what to post come straight from the client's own site.
 

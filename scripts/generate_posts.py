@@ -99,7 +99,7 @@ def main():
 Platforms: Instagram, LinkedIn, Google Business, Facebook. Balance posts between entertaining/funny, informative, and self-promotional.
 
 RULES:
-- Each post must use exactly 1 URL from the provided list, and the post content must be relevant to that page (it is a service page or a service-area page). The URL goes at the end of each post line.
+- Each post must use exactly 1 URL from the provided list, and the post content must be relevant to that page (it is a service page, a service-area page, or a blog post). The URL goes at the end of each post line.
 - The subject of each post should relate to the relevant page name.
 - Be engaging: ask questions or reference any upcoming holidays within the next 60 days.
 - Do not use emojis. Do not number the posts. Use no commas in the post text (other punctuation is ok).
