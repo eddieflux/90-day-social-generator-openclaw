@@ -6,13 +6,19 @@ image per post. Output is a CSV in HighLevel Social Planner import format.
 
 ## Requirements
 
-- Python 3.10+
-- An LLM API key for post generation (DeepSeek, OpenAI, ChatGPT, or any OpenAI-compatible provider)
-- Optional: an image API key (Gemini free tier, FAL, or Kling) for images
+- **HighLevel CRM** - the finished CSV is designed to be imported into a
+  client's HighLevel Social Planner. You need a HighLevel account (yours or
+  the client's) to actually use the output.
+- **An AI model API key** for creating post content and image prompts
+  (DeepSeek, OpenAI, ChatGPT, or any OpenAI-compatible provider)
+- **An image API key** (Gemini free tier, FAL, or Kling) if you want images
+  generated
+- **FTP or SSH access to a web host** if you want the generated images to be
+  publicly accessible. The image step saves images locally; to put real
+  image URLs in the CSV (the `imageUrls` column), you host them yourself and
+  pass `--image-base-url`. The package does not upload for you.
 - Optional: a HighLevel API key, ONLY if you want Mode A (auto-fetch client
   details from your HighLevel subaccount)
-
-No SSH, no server, no hosting setup required. Everything runs locally.
 
 ## Quick start
 
@@ -38,7 +44,12 @@ Example:
 ```
 
 Output: `output/exampledental.com-social-90d.csv` ready to import into that
-client's HighLevel Social Planner.
+client's HighLevel Social Planner (you import it in HighLevel, under the
+client's Social Planner).
+
+Note: the CSV is a HighLevel Social Planner import file. Without HighLevel
+you can still generate it, but you need HighLevel to schedule/publish the
+posts from it.
 
 ## Two ways to provide client details
 
