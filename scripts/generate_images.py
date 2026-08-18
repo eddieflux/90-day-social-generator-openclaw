@@ -207,6 +207,37 @@ def fal_generate(key: str, prompt: str, timeout: int = 300) -> str:
     return tmp
 
 
+def ssh_upload(host: str, user: str, key: str, local: str, remote_path: str):
+    """Upload one file to a remote host over SSH (scp). Returns None or raises."""
+    import subprocess
+    conn = ["-i", key, "-o", "ConnectTimeout=15", "-o", "StrictHostKeyChecking=accept-new"]
+    dest = f"{user}@{host}:{remote_path}"
+    r = subprocess.run(["scp"] + conn + [local, dest], capture_output=True, text=True)
+    if r.returncode != 0:
+        raise RuntimeError(f"scp failed: {r.stderr[-300:]}")
+
+
+def ftp_upload(host: str, user: str, passwd: str, local: str, remote_path: str):
+    """Upload one file over FTP. Creates remote dirs as needed. Returns or raises."""
+    from ftplib import FTP, error_perm
+    ftp = FTP(host, timeout=30)
+    ftp.login(user, passwd)
+    parts = remote_path.split("/")
+    cur = ""
+    for p in parts[:-1]:
+        if not p:
+            continue
+        cur += "/" + p
+        try:
+            ftp.cwd(cur)
+        except error_perm:
+            ftp.mkd(cur)
+            ftp.cwd(cur)
+    with open(local, "rb") as f:
+        ftp.storbinary(f"STOR {parts[-1]}", f)
+    ftp.quit()
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--posts-json", required=True)
@@ -223,6 +254,16 @@ def main():
     ap.add_argument("--fal-key", default="")
     ap.add_argument("--kling-ak", default="")
     ap.add_argument("--kling-sk", default="")
+    # Upload options: SSH or FTP (uploads images + fills CSV imageUrls with the public URL)
+    ap.add_argument("--ssh-host", default="", help="SSH host for image upload, e.g. yourdomain.com or user@host")
+    ap.add_argument("--ssh-user", default="", help="SSH username (default: current user)")
+    ap.add_argument("--ssh-key", default="", help="Path to SSH private key")
+    ap.add_argument("--ssh-remote-dir", default="public_html/social", help="Remote dir relative to SSH home (default public_html/social)")
+    ap.add_argument("--ftp-host", default="")
+    ap.add_argument("--ftp-user", default="")
+    ap.add_argument("--ftp-pass", default="")
+    ap.add_argument("--ftp-remote-dir", default="public_html/social", help="Remote dir for FTP (default public_html/social)")
+    ap.add_argument("--public-url-base", default="", help="Public URL base for uploaded images, e.g. https://yourdomain.com/social (default: https://<ssh/ftp host>/<remote-dir>)")
     args = ap.parse_args()
 
     posts = json.load(open(args.posts_json))
@@ -246,6 +287,35 @@ def main():
     if not gemini_key and not fal_key and not has_kling:
         print("ERROR: need --gemini-key, --fal-key, or --kling-ak(+--kling-sk). Images skipped.", file=sys.stderr)
         sys.exit(2)
+
+    # Resolve upload transport once: SSH > FTP > none
+    upload_fn = None
+    upload_host = ""
+    if args.ssh_host:
+        ssh_host = args.ssh_host.replace("ssh://", "")
+        if "@" in ssh_host:
+            user, host = ssh_host.split("@", 1)
+        else:
+            user, host = (args.ssh_user or "root"), ssh_host
+        key = args.ssh_key or os.path.expanduser("~/.ssh/id_rsa")
+        upload_fn = lambda local, remote: ssh_upload(host, user, key, local, remote)
+        upload_host = host
+        print(f"    upload via SSH: {user}@{host}:{args.ssh_remote_dir}", file=sys.stderr)
+    elif args.ftp_host:
+        upload_fn = lambda local, remote: ftp_upload(args.ftp_host, args.ftp_user, args.ftp_pass, local, remote)
+        upload_host = args.ftp_host
+        print(f"    upload via FTP: {args.ftp_user}@{args.ftp_host}:{args.ftp_remote_dir}", file=sys.stderr)
+
+    # Public URL base: explicit > host + remote dir
+    if args.public_url_base:
+        public_base = args.public_url_base.rstrip("/")
+    elif upload_host:
+        remote_for_url = (args.ssh_remote_dir if args.ssh_host else args.ftp_remote_dir).lstrip("/")
+        # strip a leading public_html/ from the URL path
+        url_path = remote_for_url.replace("public_html/", "", 1) if remote_for_url.startswith("public_html/") else remote_for_url
+        public_base = f"https://{upload_host}/{url_path}"
+    else:
+        public_base = ""
 
     os.makedirs(args.outdir, exist_ok=True)
     results = []
@@ -281,10 +351,20 @@ def main():
                 import shutil
                 shutil.copy(img, local)
                 os.remove(img)
-            p["imageUrl"] = f"{args.image_base_url.rstrip('/')}/{fname}" if args.image_base_url else ""
+            # Upload (SSH/FTP) if configured; fall back to --image-base-url or local only
+            p["imageUrl"] = ""
+            if upload_fn:
+                remote_dir = args.ssh_remote_dir if args.ssh_host else args.ftp_remote_dir
+                try:
+                    upload_fn(local, f"{remote_dir}/{fname}")
+                    p["imageUrl"] = f"{public_base}/{fname}"
+                except Exception as e:
+                    print(f"    upload failed for {fname}: {e}", file=sys.stderr)
+            elif args.image_base_url:
+                p["imageUrl"] = f"{args.image_base_url.rstrip('/')}/{fname}"
             p["imagePrompt"] = full_prompt
             results.append((i + 1, fname, local))
-            print(f"[{i+1}/{len(posts)}] OK {local}", flush=True)
+            print(f"[{i+1}/{len(posts)}] OK {local} -> {p['imageUrl'] or 'no public URL'}", flush=True)
         except Exception as e:
             p["imageUrl"] = ""
             print(f"[{i+1}/{len(posts)}] FAIL {fname}: {e}", flush=True)

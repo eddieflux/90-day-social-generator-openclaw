@@ -16,9 +16,9 @@ image per post. Output is a CSV in HighLevel Social Planner import format.
 - **An AI model API key** for post content and image prompts (DeepSeek,
   OpenAI, ChatGPT, or any OpenAI-compatible provider)
 - **An image API key** (Gemini free tier, FAL, or Kling) for images
-- **FTP or SSH access to a web host** if you want generated images publicly
-  accessible (the package saves images locally; you host them and pass
-  `--image-base-url` for real CSV image URLs)
+- **FTP or SSH access to a web host** so the package can upload the generated
+  images and write real public URLs into the CSV `imageUrls` column
+  (`--ssh-host/--ssh-user/--ssh-key` or `--ftp-host/--ftp-user/--ftp-pass`)
 - Optional: a HighLevel API key, ONLY for Mode A (auto-fetch client details)
 
 ## Quick start
@@ -54,8 +54,8 @@ Using a ChatGPT/OpenAI key instead of DeepSeek:
 2. Sitemap -> filtered page list from the client's site
 3. Posts -> LLM writes the calendar (45 posts, every other day, 9am, one URL
    per post, no emojis, hashtags)
-4. Images (optional) -> one local image per post; pass `--image-base-url` to
-   fill the CSV `imageUrls` column with your hosted URLs
+4. Images (optional) -> one image per post, uploaded to your web host over
+   SSH or FTP, public URLs written into the CSV `imageUrls` column
 5. Import the CSV into the client's HighLevel Social Planner
 
 See README.md for the full flag reference.

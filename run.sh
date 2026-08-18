@@ -35,6 +35,15 @@ GEMINI_KEY=""
 FAL_KEY=""
 KLING_AK=""
 KLING_SK=""
+SSH_HOST=""
+SSH_USER=""
+SSH_KEY=""
+SSH_REMOTE_DIR="public_html/social"
+FTP_HOST=""
+FTP_USER=""
+FTP_PASS=""
+FTP_REMOTE_DIR="public_html/social"
+PUBLIC_URL_BASE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -52,6 +61,15 @@ while [[ $# -gt 0 ]]; do
     --fal-key) FAL_KEY="$2"; shift 2 ;;
     --kling-ak) KLING_AK="$2"; shift 2 ;;
     --kling-sk) KLING_SK="$2"; shift 2 ;;
+    --ssh-host) SSH_HOST="$2"; shift 2 ;;
+    --ssh-user) SSH_USER="$2"; shift 2 ;;
+    --ssh-key) SSH_KEY="$2"; shift 2 ;;
+    --ssh-remote-dir) SSH_REMOTE_DIR="$2"; shift 2 ;;
+    --ftp-host) FTP_HOST="$2"; shift 2 ;;
+    --ftp-user) FTP_USER="$2"; shift 2 ;;
+    --ftp-pass) FTP_PASS="$2"; shift 2 ;;
+    --ftp-remote-dir) FTP_REMOTE_DIR="$2"; shift 2 ;;
+    --public-url-base) PUBLIC_URL_BASE="$2"; shift 2 ;;
     *) echo "unknown arg: $1"; exit 2 ;;
   esac
 done
@@ -111,6 +129,9 @@ else
   [[ -n "$FAL_KEY" ]] && IMG_ARGS+=(--fal-key "$FAL_KEY")
   [[ -n "$KLING_AK" ]] && IMG_ARGS+=(--kling-ak "$KLING_AK")
   [[ -n "$KLING_SK" ]] && IMG_ARGS+=(--kling-sk "$KLING_SK")
+  [[ -n "$SSH_HOST" ]] && IMG_ARGS+=(--ssh-host "$SSH_HOST" --ssh-user "$SSH_USER" --ssh-key "$SSH_KEY" --ssh-remote-dir "$SSH_REMOTE_DIR")
+  [[ -n "$FTP_HOST" ]] && IMG_ARGS+=(--ftp-host "$FTP_HOST" --ftp-user "$FTP_USER" --ftp-pass "$FTP_PASS" --ftp-remote-dir "$FTP_REMOTE_DIR")
+  [[ -n "$PUBLIC_URL_BASE" ]] && IMG_ARGS+=(--public-url-base "$PUBLIC_URL_BASE")
   python3 scripts/generate_images.py "${IMG_ARGS[@]}" || echo "    (image step failed, CSV still valid)"
 fi
 

@@ -13,10 +13,12 @@ image per post. Output is a CSV in HighLevel Social Planner import format.
   (DeepSeek, OpenAI, ChatGPT, or any OpenAI-compatible provider)
 - **An image API key** (Gemini free tier, FAL, or Kling) if you want images
   generated
-- **FTP or SSH access to a web host** if you want the generated images to be
-  publicly accessible. The image step saves images locally; to put real
-  image URLs in the CSV (the `imageUrls` column), you host them yourself and
-  pass `--image-base-url`. The package does not upload for you.
+- **FTP or SSH access to a web host** so the package can upload the generated
+  images for you and put real public URLs in the CSV `imageUrls` column. Pass
+  `--ssh-host`/`--ssh-user`/`--ssh-key` (or `--ftp-host`/`--ftp-user`/`--ftp-pass`)
+  and the package uploads to `public_html/social/` (override with
+  `--ssh-remote-dir`/`--ftp-remote-dir`) and writes
+  `https://<host>/social/post-001.png` style URLs into the CSV.
 - Optional: a HighLevel API key, ONLY if you want Mode A (auto-fetch client
   details from your HighLevel subaccount)
 
@@ -89,7 +91,12 @@ HighLevel. Same CSV output either way.
 | `--llm-key` | | LLM API key (required for post generation; flag only, never an env var). Works with DeepSeek, OpenAI, ChatGPT, or any OpenAI-compatible provider |
 | `--llm-model` | | Model name (default `deepseek-chat`; use e.g. `gpt-4o-mini` for OpenAI/ChatGPT) |
 | `--llm-base` | | API endpoint (default DeepSeek; use `https://api.openai.com/v1/chat/completions` for OpenAI/ChatGPT) |
-| `--image-base-url` | | Public URL prefix so the CSV imageUrls column is filled |
+| `--image-base-url` | | Public URL prefix if you host images yourself (no upload) |
+| `--ssh-host` / `--ssh-user` / `--ssh-key` | | Upload images over SSH (key auth); remote dir defaults to `public_html/social` |
+| `--ssh-remote-dir` | `public_html/social` | Remote dir for SSH uploads |
+| `--ftp-host` / `--ftp-user` / `--ftp-pass` | | Upload images over FTP |
+| `--ftp-remote-dir` | `public_html/social` | Remote dir for FTP uploads |
+| `--public-url-base` | | Override the public URL base (default: `https://<host>/social`) |
 | `--gemini-key` / `--fal-key` / `--kling-ak` + `--kling-sk` | | Image provider keys (flags, never env vars) |
 
 ## Environment variables
@@ -106,8 +113,10 @@ See `.env.example`.
    balanced entertaining/informative/promotional, no emojis, hashtags, and a
    09:00 schedule every other day
 4. **Images** (`generate_images.py`, optional) - one local image per post,
-   saved under `output/<domain>-images/`; fill `imageUrls` in the CSV only if
-   you pass `--image-base-url`
+   saved under `output/<domain>-images/`; then uploaded to your web host via
+   SSH or FTP (flags `--ssh-*` / `--ftp-*`), and the public URLs are written
+   into the CSV `imageUrls` column. No upload flags means images stay local
+   and `imageUrls` stays empty.
 5. **Import** - upload the CSV to the client's HighLevel Social Planner
 
 ## Output
