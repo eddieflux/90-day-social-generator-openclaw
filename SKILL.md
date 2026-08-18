@@ -21,7 +21,7 @@ posts: the URLs and what to post come straight from the client's own site.
 ## Tested and working
 
 - Content API: DeepSeek and ChatGPT (OpenAI) both tested for post and image-prompt generation
-- Image API: DeepSeek and ChatGPT tested for image generation
+- Image API: DeepSeek, ChatGPT, Gemini, and FAL tested for image generation
 - Pipeline: tested end to end (sitemap fetch, post generation, CSV output, SSH upload)
 
 ## Requirements
