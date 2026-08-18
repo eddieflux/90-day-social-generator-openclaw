@@ -53,9 +53,10 @@ Using a ChatGPT/OpenAI key instead of DeepSeek:
 - **Mode A (HL-connected):** `./run.sh --email client@example.com` - pulls the
   contact + custom fields from your HighLevel subaccount. The ONLY env var in
   the package, `HIGHLEVEL_ACCESS_TOKEN`, is used here.
-- **Mode B (no HighLevel):** `./run.sh --details "..."` or
-  `./run.sh --client-json file.json` - hand over client details directly and
-  still get the importable CSV. No env vars needed.
+- **Mode B (no HighLevel):** `./run.sh --details "..."`,
+  `./run.sh --client-json file.json`, or just `./run.sh` (interactive: it asks
+  for each client detail one question at a time). Hand over client details
+  directly and still get the importable CSV. No env vars needed.
 
 ## Pipeline
 

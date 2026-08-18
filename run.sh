@@ -76,7 +76,7 @@ done
 
 if [[ -z "$EMAIL" && -z "$DETAILS" && -z "$CLIENT_JSON" ]]; then
   echo "usage: ./run.sh --email x@y.com | --details \"Company|site|City|ST|Category|Desc\" | --client-json file.json"
-  exit 2
+  echo "       (no mode given = interactive: you'll be asked for each client detail one at a time)"
 fi
 
 mkdir -p data output
@@ -88,9 +88,12 @@ if [[ -n "$EMAIL" ]]; then
 elif [[ -n "$DETAILS" ]]; then
   echo "==> 1/5 using client details (no HighLevel connection)"
   python3 scripts/fetch_client.py --details "$DETAILS" --json-out "data/client.json"
-else
+elif [[ -n "$CLIENT_JSON" ]]; then
   echo "==> 1/5 loading client JSON: $CLIENT_JSON"
   python3 scripts/fetch_client.py --client-json "$CLIENT_JSON" --json-out "data/client.json"
+else
+  echo "==> 1/5 interactive: asking for client details one at a time (no HighLevel connection)"
+  python3 scripts/fetch_client.py --interactive --json-out "data/client.json"
 fi
 
 DOMAIN=$(python3 -c "import json;print((json.load(open('data/client.json')).get('website') or '').replace('https://','').replace('http://','').rstrip('/'))")

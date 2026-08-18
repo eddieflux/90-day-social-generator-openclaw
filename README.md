@@ -94,6 +94,7 @@ HighLevel. Same CSV output either way.
 | `--email` | | Mode A: fetch client from HighLevel by email |
 | `--details` | | Mode B: client details as `Company\|site\|City\|ST\|Category\|Desc` |
 | `--client-json` | | Mode B: normalized client JSON file |
+| *(no mode)* | | Mode B interactive: asks for each client detail one question at a time |
 | `--count` | 45 | Number of posts (90 days at 1 every 2 days) |
 | `--start-date` | today | First post date (YYYY-MM-DD) |
 | `--no-images` | | Skip the image step |

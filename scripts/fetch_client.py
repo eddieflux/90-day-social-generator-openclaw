@@ -84,6 +84,30 @@ def from_details(details: str) -> dict:
     })
 
 
+def from_interactive() -> dict:
+    """Ask for each client detail one question at a time (no HL connection)."""
+    print("No HighLevel connection. Let's get the client details, one at a time.")
+    company = input("1. Client company name: ").strip()
+    website = input("2. Client website (e.g. example.com): ").strip()
+    city = input("3. City: ").strip()
+    state = input("4. State (e.g. FL): ").strip()
+    category = input("5. Business Category (e.g. dentist): ").strip()
+    desc = input("6. Company description (optional, Enter to skip): ").strip()
+    if not company or not website or not city or not state or not category:
+        print("ERROR: company, website, city, state, and category are required.", file=sys.stderr)
+        sys.exit(2)
+    return normalize({
+        "companyName": company,
+        "website": website,
+        "city": city,
+        "state": state,
+        "customFields": {
+            "Business Category": category,
+            "Company Description": desc,
+        },
+    })
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--email", default="")
@@ -91,6 +115,7 @@ def main():
     ap.add_argument("--location-id", default="")
     ap.add_argument("--client-json", default="", help="load/normalize existing client JSON (no HL needed)")
     ap.add_argument("--details", default="", help="Company|website|City|ST|Business Category|Description (no HL needed)")
+    ap.add_argument("--interactive", action="store_true", help="ask for each detail one question at a time (no HL needed)")
     ap.add_argument("--json-out", default="")
     args = ap.parse_args()
 
@@ -102,6 +127,8 @@ def main():
         client = normalize(json.load(open(args.client_json)))
     elif args.details:
         client = from_details(args.details)
+    elif args.interactive or not (args.email or args.company):
+        client = from_interactive()
     else:
         client = from_hl(args, env)
 
