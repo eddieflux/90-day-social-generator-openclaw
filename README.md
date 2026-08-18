@@ -7,7 +7,7 @@ image per post. Output is a CSV in HighLevel Social Planner import format.
 ## Requirements
 
 - Python 3.10+
-- An LLM API key (DeepSeek or OpenAI compatible) for post generation
+- An LLM API key for post generation (DeepSeek, OpenAI, ChatGPT, or any OpenAI-compatible provider)
 - Optional: an image API key (Gemini free tier, FAL, or Kling) for images
 - Optional: a HighLevel API key, ONLY if you want Mode A (auto-fetch client
   details from your HighLevel subaccount)
@@ -17,8 +17,18 @@ No SSH, no server, no hosting setup required. Everything runs locally.
 ## Quick start
 
 ```bash
-cp .env.example .env   # optional: add your API keys here, or pass flags
-./run.sh --details "Company Name|website.com|City|ST|Business Category|Company description"
+cp .env.example .env   # optional: add your HighLevel key here (Mode A only)
+./run.sh --details "Company Name|website.com|City|ST|Business Category|Company description" \
+  --llm-key sk-...
+```
+
+Using a ChatGPT/OpenAI key instead of DeepSeek:
+
+```bash
+./run.sh --details "Company Name|website.com|City|ST|Business Category|Company description" \
+  --llm-key sk-your-openai-key \
+  --llm-model gpt-4o-mini \
+  --llm-base https://api.openai.com/v1/chat/completions
 ```
 
 Example:
@@ -65,14 +75,17 @@ HighLevel. Same CSV output either way.
 | `--count` | 45 | Number of posts (90 days at 1 every 2 days) |
 | `--start-date` | today | First post date (YYYY-MM-DD) |
 | `--no-images` | | Skip the image step |
-| `--llm-key` | | LLM API key (else DEEPSEEK_API_KEY/OPENAI_API_KEY env) |
+| `--llm-key` | | LLM API key (required for post generation; flag only, never an env var). Works with DeepSeek, OpenAI, ChatGPT, or any OpenAI-compatible provider |
+| `--llm-model` | | Model name (default `deepseek-chat`; use e.g. `gpt-4o-mini` for OpenAI/ChatGPT) |
+| `--llm-base` | | API endpoint (default DeepSeek; use `https://api.openai.com/v1/chat/completions` for OpenAI/ChatGPT) |
 | `--image-base-url` | | Public URL prefix so the CSV imageUrls column is filled |
-| `--gemini-key` / `--fal-key` / `--kling-ak` + `--kling-sk` | | Image provider keys |
+| `--gemini-key` / `--fal-key` / `--kling-ak` + `--kling-sk` | | Image provider keys (flags, never env vars) |
 
 ## Environment variables
 
 The ONLY env var this package requires is `HIGHLEVEL_ACCESS_TOKEN`, and only
-for Mode A. All other keys can be passed as flags. See `.env.example`.
+for Mode A. Everything else (LLM key, image keys) is passed as a CLI flag.
+See `.env.example`.
 
 ## Pipeline
 

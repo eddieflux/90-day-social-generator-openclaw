@@ -28,6 +28,8 @@ COUNT=45
 START_DATE="$(date +%F)"
 NO_IMAGES=0
 LLM_KEY=""
+LLM_MODEL=""
+LLM_BASE=""
 IMAGE_BASE_URL=""
 GEMINI_KEY=""
 FAL_KEY=""
@@ -43,6 +45,8 @@ while [[ $# -gt 0 ]]; do
     --start-date) START_DATE="$2"; shift 2 ;;
     --no-images) NO_IMAGES=1; shift ;;
     --llm-key) LLM_KEY="$2"; shift 2 ;;
+    --llm-model) LLM_MODEL="$2"; shift 2 ;;
+    --llm-base) LLM_BASE="$2"; shift 2 ;;
     --image-base-url) IMAGE_BASE_URL="$2"; shift 2 ;;
     --gemini-key) GEMINI_KEY="$2"; shift 2 ;;
     --fal-key) FAL_KEY="$2"; shift 2 ;;
@@ -83,6 +87,8 @@ python3 scripts/fetch_sitemap.py "$SITEMAP" --out "data/sitemap.txt"
 echo "==> 3/5 generating $COUNT posts (every other day, 9am, from $START_DATE)"
 LLM_ARGS=()
 [[ -n "$LLM_KEY" ]] && LLM_ARGS+=(--llm-key "$LLM_KEY")
+[[ -n "$LLM_MODEL" ]] && LLM_ARGS+=(--llm-model "$LLM_MODEL")
+[[ -n "$LLM_BASE" ]] && LLM_ARGS+=(--llm-base "$LLM_BASE")
 python3 scripts/generate_posts.py --client-json data/client.json \
   --sitemap-file data/sitemap.txt \
   --start-date "$START_DATE" --count "$COUNT" \
@@ -98,6 +104,8 @@ else
             --client-json data/client.json
             --outdir "output/$(basename "$DOMAIN")-images")
   [[ -n "$LLM_KEY" ]] && IMG_ARGS+=(--llm-key "$LLM_KEY")
+  [[ -n "$LLM_MODEL" ]] && IMG_ARGS+=(--llm-model "$LLM_MODEL")
+  [[ -n "$LLM_BASE" ]] && IMG_ARGS+=(--llm-base "$LLM_BASE")
   [[ -n "$IMAGE_BASE_URL" ]] && IMG_ARGS+=(--image-base-url "$IMAGE_BASE_URL")
   [[ -n "$GEMINI_KEY" ]] && IMG_ARGS+=(--gemini-key "$GEMINI_KEY")
   [[ -n "$FAL_KEY" ]] && IMG_ARGS+=(--fal-key "$FAL_KEY")

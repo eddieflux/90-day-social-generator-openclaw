@@ -38,17 +38,19 @@ STYLE_SUFFIX = (
 )
 
 
-def llm_chat(env, prompt: str, max_tokens: int = 500, llm_key: str = "") -> str:
-    key = llm_key or env.get("DEEPSEEK_API_KEY", "") or env.get("OPENAI_API_KEY", "")
+def llm_chat(env, prompt: str, max_tokens: int = 500, llm_key: str = "", llm_model: str = "", llm_base: str = "") -> str:
+    key = llm_key
     if not key:
-        raise RuntimeError("no LLM key (pass --llm-key or set DEEPSEEK_API_KEY/OPENAI_API_KEY)")
+        raise RuntimeError("no LLM key (pass --llm-key; the only env var here is HIGHLEVEL_ACCESS_TOKEN)")
+    model = llm_model or "deepseek-chat"
+    base = llm_base or "https://api.deepseek.com/chat/completions"
     body = json.dumps({
-        "model": "deepseek-chat",
+        "model": model,
         "messages": [{"role": "user", "content": prompt}],
         "max_tokens": max_tokens,
         "temperature": 0.8,
     }).encode()
-    req = urllib.request.Request("https://api.deepseek.com/chat/completions", data=body,
+    req = urllib.request.Request(base, data=body,
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"})
     with urllib.request.urlopen(req, timeout=120) as r:
         resp = json.loads(r.read())
@@ -215,6 +217,8 @@ def main():
     ap.add_argument("--outdir", default="images")
     ap.add_argument("--image-base-url", default="", help="https://yourdomain.com/social to fill CSV imageUrls")
     ap.add_argument("--llm-key", default="")
+    ap.add_argument("--llm-model", default="")
+    ap.add_argument("--llm-base", default="", help="OpenAI-compatible endpoint (default DeepSeek; use https://api.openai.com/v1/chat/completions for ChatGPT/OpenAI keys)")
     ap.add_argument("--gemini-key", default="")
     ap.add_argument("--fal-key", default="")
     ap.add_argument("--kling-ak", default="")
@@ -234,10 +238,10 @@ def main():
         print("WARN: no Business Category provided; image ideas will be generic", file=sys.stderr)
 
     env = load_env()
-    gemini_key = args.gemini_key or env.get("GEMINI_API_KEY", "")
-    fal_key = args.fal_key or env.get("FAL_KEY", "") or env.get("FAL_API_KEY", "")
-    kling_ak = args.kling_ak or env.get("KLING_ACCESS_KEY", "") or env.get("KLING_API_KEY", "")
-    kling_sk = args.kling_sk or env.get("KLING_SECRET_KEY", "")
+    gemini_key = args.gemini_key
+    fal_key = args.fal_key
+    kling_ak = args.kling_ak
+    kling_sk = args.kling_sk
     has_kling = bool(kling_ak and (kling_sk or kling_ak.startswith("api-key-")))
     if not gemini_key and not fal_key and not has_kling:
         print("ERROR: need --gemini-key, --fal-key, or --kling-ak(+--kling-sk). Images skipped.", file=sys.stderr)
@@ -249,7 +253,7 @@ def main():
         fname = f"post-{i+1:03d}.png"
         local = os.path.join(args.outdir, fname)
         try:
-            idea = llm_chat(env, image_idea_prompt(biz_cat, p["content"]), llm_key=args.llm_key)
+            idea = llm_chat(env, image_idea_prompt(biz_cat, p["content"]), llm_key=args.llm_key, llm_model=args.llm_model, llm_base=args.llm_base)
             idea = re.sub(r"^[\"'`\s]+|[\"'`\s]+$", "", idea)
             full_prompt = f"{idea} {STYLE_SUFFIX}"
             img = None

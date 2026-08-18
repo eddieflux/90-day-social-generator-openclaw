@@ -33,13 +33,13 @@ def build_schedule(start_date: str, count: int = 45, time_str: str = "09:00:00")
     return [(d + timedelta(days=i * 2)).strftime("%Y-%m-%d") + " " + time_str for i in range(count)]
 
 
-def call_llm(env, prompt: str, max_tokens: int = 12000, llm_key: str = "", llm_model: str = "") -> str:
-    key = llm_key or env.get("DEEPSEEK_API_KEY", "") or env.get("OPENAI_API_KEY", "")
+def call_llm(env, prompt: str, max_tokens: int = 12000, llm_key: str = "", llm_model: str = "", llm_base: str = "") -> str:
+    key = llm_key
     if not key:
-        print("ERROR: no LLM key. Pass --llm-key or set DEEPSEEK_API_KEY/OPENAI_API_KEY.", file=sys.stderr)
+        print("ERROR: no LLM key. Pass --llm-key (the only env var in this package is HIGHLEVEL_ACCESS_TOKEN).", file=sys.stderr)
         sys.exit(2)
     model = llm_model or "deepseek-chat"
-    base = "https://api.deepseek.com/chat/completions"
+    base = llm_base or "https://api.deepseek.com/chat/completions"
     body = json.dumps({
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -73,6 +73,7 @@ def main():
     ap.add_argument("--out", default="")
     ap.add_argument("--llm-key", default="")
     ap.add_argument("--llm-model", default="")
+    ap.add_argument("--llm-base", default="", help="OpenAI-compatible endpoint (default DeepSeek; use https://api.openai.com/v1/chat/completions for ChatGPT/OpenAI keys)")
     args = ap.parse_args()
 
     client = json.load(open(args.client_json))
@@ -114,7 +115,7 @@ date,content,url
 No extra text, no headers. {args.count} lines total."""
 
     env = load_env()
-    raw = call_llm(env, prompt, llm_key=args.llm_key, llm_model=args.llm_model)
+    raw = call_llm(env, prompt, llm_key=args.llm_key, llm_model=args.llm_model, llm_base=args.llm_base)
     posts = parse_posts(raw)
 
     if len(posts) != args.count:
