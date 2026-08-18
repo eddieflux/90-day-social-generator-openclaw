@@ -1,7 +1,7 @@
 # 90-Day HighLevel Social Media Calendar Generator
 
 Generate a full 90-day social media calendar for any client: post copy, one
-linking URL per post, and one AI-generated image per post. Output is a CSV in
+linking URL per post, and one AI-generated image per post. 1 every 2 days. Output is a CSV in
 HighLevel Social Planner import format.
 
 ## How it knows what to post
