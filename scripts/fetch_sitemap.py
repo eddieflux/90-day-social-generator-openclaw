@@ -13,6 +13,17 @@ SKIP_PATTERNS = [
     r"/tag/", r"/category/", r"/author/", r"/feed", r"/wp-json",
     r"/page/\d+", r"/amp/?$", r"#", r"\?",
     r"/blog/page", r"/assets/", r"/uploads/",
+    # Junk / non-content pages: these are not worth posting about or linking back to
+    r"/about", r"/about-us", r"/aboutus", r"/our-story", r"/team", r"/meet-the-team",
+    r"/sitemap", r"/sitemap.xml", r"/sitemap_index",
+    r"/terms", r"/t&c", r"/t-and-c", r"/conditions", r"/legal", r"/disclaimer",
+    r"/privacy", r"/privacy-policy", r"/cookie", r"/cookies", r"/gdpr",
+    r"/contact", r"/contact-us", r"/contactus", r"/get-in-touch",
+    r"/faq", r"/faqs", r"/help", r"/support",
+    r"/login", r"/signin", r"/sign-up", r"/signup", r"/register", r"/account",
+    r"/cart", r"/checkout", r"/wishlist", r"/my-account", r"/dashboard",
+    r"/search", r"/404", r"/error", r"/under-construction", r"/coming-soon",
+    r"/blog/?$", r"/news/?$", r"/press", r"/media-kit",
 ]
 
 

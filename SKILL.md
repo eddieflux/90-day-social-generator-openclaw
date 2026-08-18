@@ -1,13 +1,22 @@
 ---
 name: "90-day-social-generator"
-description: "Generate a 90-day social media calendar (HL Social Planner CSV): AI posts + images per client, with or without HighLevel connection. Requires HighLevel to import, AI model for content, image API + your own FTP/SSH host for image URLs."
+description: "Generate a 90-day social media calendar (HL Social Planner CSV): pulls the client's sitemap for link-back URLs and post topics, AI writes posts + images per client, with or without HighLevel connection. Requires HighLevel to import, AI model for content, image API + SSH/FTP host for image uploads."
 ---
 
 # 90-Day Social Media Calendar Generator
 
 Generate a full 90-day social media calendar for any client: post copy, one
-linking URL per post (from the client's live sitemap), and one AI-generated
-image per post. Output is a CSV in HighLevel Social Planner import format.
+linking URL per post, and one AI-generated image per post. Output is a CSV in
+HighLevel Social Planner import format.
+
+## How it knows what to post
+
+The client's **sitemap** is the source of truth. The pipeline fetches
+`<domain>/sitemap.xml`, filters out junk pages (about, sitemap, terms,
+privacy, contact, faq, login, cart, blog index, etc.), and keeps only the
+service and area pages. Each post then links back to one of those real pages,
+and the post content is written around that page's topic. No sitemap, no
+posts: the URLs and what to post come straight from the client's own site.
 
 ## Requirements
 

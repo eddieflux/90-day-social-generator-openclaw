@@ -1,8 +1,17 @@
 # 90-Day Social Media Calendar Generator
 
 Generate a full 90-day social media calendar for any client: post copy, one
-linking URL per post (from the client's live sitemap), and one AI-generated
-image per post. Output is a CSV in HighLevel Social Planner import format.
+linking URL per post, and one AI-generated image per post. Output is a CSV in
+HighLevel Social Planner import format.
+
+## How it knows what to post
+
+The client's **sitemap** is the source of truth. The pipeline fetches
+`<domain>/sitemap.xml`, filters out junk pages (about, sitemap, terms,
+privacy, contact, faq, login, cart, blog index, etc.), and keeps only the
+service and area pages. Each post then links back to one of those real pages,
+and the post content is written around that page's topic. No sitemap, no
+posts: the URLs and what to post come straight from the client's own site.
 
 ## Requirements
 
@@ -108,7 +117,10 @@ See `.env.example`.
 ## Pipeline
 
 1. **Client details** (`fetch_client.py`) - normalized client JSON (either mode)
-2. **Sitemap** (`fetch_sitemap.py`) - pulls and filters the client sitemap
+2. **Sitemap** (`fetch_sitemap.py`) - pulls the client's `sitemap.xml` and
+   filters it to real service/area pages (skips about, sitemap, terms,
+   privacy, contact, faq, login, cart, blog index, and other non-content
+   pages). These URLs drive what each post is about and what it links back to
 3. **Posts** (`generate_posts.py`) - LLM writes the posts, one URL each,
    balanced entertaining/informative/promotional, no emojis, hashtags, and a
    09:00 schedule every other day
